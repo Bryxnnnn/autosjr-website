@@ -1,87 +1,110 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Fuel, Settings, Phone, ChevronDown, X } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Button } from '../components/ui/button';
 import SEO from '../components/SEO';
+import axios from 'axios';
 
-export const vehicles = [
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Fallback vehicles if API fails
+const fallbackVehicles = [
   {
-    id: 1,
+    id: '1',
     name: 'Nissan Frontier Pro-4X',
-    year: 2015,
+    year: '2015',
     brand: 'Nissan',
     bodyType: 'Pick-up',
-    mileage: '6 Cilindros',
+    engine: '6 Cilindros',
     fuel: 'Gasolina',
-    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/ney20cob_Screenshot%202026-01-30%202230905.png',
+    cover_image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/ney20cob_Screenshot%202026-01-30%20230905.png',
   },
   {
-    id: 2,
+    id: '2',
     name: 'Chevrolet Cruze LT',
-    year: 2017,
+    year: '2017',
     brand: 'Chevrolet',
     bodyType: 'Sedán',
-    mileage: '4 Cilindros',
+    engine: '4 Cilindros',
     fuel: 'Automático',
-    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/gvy2u8ym_Screenshot%202026-01-30%202233715.png',
+    cover_image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/gvy2u8ym_Screenshot%202026-01-30%20233715.png',
   },
   {
-    id: 3,
+    id: '3',
     name: 'Volkswagen Golf TSI',
-    year: 2015,
+    year: '2015',
     brand: 'Volkswagen',
     bodyType: 'Hatchback',
-    mileage: '4 Cilindros',
+    engine: '4 Cilindros',
     fuel: 'Gasolina',
-    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/8myndhig_Screenshot%202026-01-30%202234739%20-%20Copy.png',
+    cover_image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/8myndhig_Screenshot%202026-01-30%20234739%20-%20Copy.png',
   },
   {
-    id: 4,
+    id: '4',
     name: 'Nissan Rogue Advance',
-    year: 2016,
+    year: '2016',
     brand: 'Nissan',
     bodyType: 'SUV',
-    mileage: '4 Cilindros',
+    engine: '4 Cilindros',
     fuel: 'Gasolina',
-    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/1gpofykx_Screenshot%202026-01-30%202235826.png',
+    cover_image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/1gpofykx_Screenshot%202026-01-30%20235826.png',
   },
   {
-    id: 5,
+    id: '5',
     name: 'Chevrolet Aveo LS',
-    year: 2018,
+    year: '2018',
     brand: 'Chevrolet',
     bodyType: 'Sedán',
-    mileage: '4 Cilindros',
+    engine: '4 Cilindros',
     fuel: 'Gasolina',
-    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/2kp4mvin_Screenshot%202026-01-31%202000601.png',
+    cover_image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/2kp4mvin_Screenshot%202026-01-31%20000601.png',
   },
 ];
 
-
-// Get unique values for filters
-const brands = [...new Set(placeholderVehicles.map(v => v.brand))].sort();
-// Add more common brands for future inventory
-const allBrands = [...new Set([...brands, 'Audi', 'BMW', 'Ford', 'Honda', 'Hyundai', 'Kia', 'Mazda', 'Mercedes-Benz', 'Toyota'])].sort();
-const bodyTypes = [...new Set(placeholderVehicles.map(v => v.bodyType))].sort();
-// Add more body types for future inventory
-const allBodyTypes = [...new Set([...bodyTypes, 'Convertible', 'Coupé', 'Crossover', 'Minivan', 'Off-Road', 'Roadster'])].sort();
+// All available brands and body types for filters
+const allBrands = ['Audi', 'BMW', 'Chevrolet', 'Ford', 'Honda', 'Hyundai', 'Kia', 'Mazda', 'Mercedes-Benz', 'Nissan', 'Toyota', 'Volkswagen'].sort();
+const allBodyTypes = ['Convertible', 'Coupé', 'Crossover', 'Hatchback', 'Minivan', 'Off-Road', 'Pick-up', 'Roadster', 'SUV', 'Sedán'].sort();
 
 const Inventory = () => {
   const { t, language } = useLanguage();
+  const [vehicles, setVehicles] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [brandFilter, setBrandFilter] = useState('');
   const [bodyTypeFilter, setBodyTypeFilter] = useState('');
   const [brandDropdownOpen, setBrandDropdownOpen] = useState(false);
   const [bodyTypeDropdownOpen, setBodyTypeDropdownOpen] = useState(false);
 
+  useEffect(() => {
+    fetchVehicles();
+  }, []);
+
+  const fetchVehicles = async () => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/vehicles`);
+      if (response.data && response.data.length > 0) {
+        setVehicles(response.data);
+      } else {
+        // Use fallback if no vehicles in DB
+        setVehicles(fallbackVehicles);
+      }
+    } catch (err) {
+      console.error('Error fetching vehicles:', err);
+      // Use fallback on error
+      setVehicles(fallbackVehicles);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredVehicles = useMemo(() => {
-    return placeholderVehicles.filter(vehicle => {
+    return vehicles.filter(vehicle => {
       if (brandFilter && vehicle.brand !== brandFilter) return false;
       if (bodyTypeFilter && vehicle.bodyType !== bodyTypeFilter) return false;
       return true;
     });
-  }, [brandFilter, bodyTypeFilter]);
+  }, [vehicles, brandFilter, bodyTypeFilter]);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -96,6 +119,14 @@ const Inventory = () => {
   };
 
   const hasFilters = brandFilter || bodyTypeFilter;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#050505] pt-24 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div data-testid="inventory-page" className="min-h-screen bg-[#050505] pt-24">
@@ -138,7 +169,7 @@ const Inventory = () => {
               </button>
               
               {brandDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl z-20 overflow-hidden">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl z-20 overflow-hidden max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setBrandFilter('');
@@ -187,7 +218,7 @@ const Inventory = () => {
               </button>
               
               {bodyTypeDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl z-20 overflow-hidden">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl z-20 overflow-hidden max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setBodyTypeFilter('');
@@ -254,7 +285,7 @@ const Inventory = () => {
                   <Link to={`/vehicle/${vehicle.id}`}>
                     <div className="relative aspect-[16/10] overflow-hidden">
                       <img
-                        src={vehicle.image}
+                        src={vehicle.cover_image || vehicle.images?.[0] || 'https://via.placeholder.com/400x300'}
                         alt={vehicle.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
@@ -285,7 +316,7 @@ const Inventory = () => {
                       </div>
                       <div className="flex items-center space-x-2 text-gray-400 text-sm">
                         <Settings className="w-4 h-4" />
-                        <span>{vehicle.mileage}</span>
+                        <span>{vehicle.engine}</span>
                       </div>
                       <div className="flex items-center space-x-2 text-gray-400 text-sm">
                         <Fuel className="w-4 h-4" />
