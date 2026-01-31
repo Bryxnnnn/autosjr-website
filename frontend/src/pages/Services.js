@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Car, Shield, HandshakeIcon, CreditCard, CheckCircle, Phone } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Button } from '../components/ui/button';
+import SEO from '../components/SEO';
 
 const Services = () => {
   const { t, language } = useLanguage();
