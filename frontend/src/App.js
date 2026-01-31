@@ -10,6 +10,7 @@ import Inventory from "./pages/Inventory";
 import Services from "./pages/Services";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import VehicleDetail from "./pages/VehicleDetail";
 import { Toaster } from "./components/ui/sonner";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/inventory" element={<Inventory />} />
+            <Route path="/vehicle/:id" element={<VehicleDetail />} />
             <Route path="/services" element={<Services />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
