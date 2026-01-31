@@ -122,11 +122,14 @@ const vehiclesData = {
     fuel: 'Gasolina',
     transmission: 'Manual',
     description: {
-      es: 'Compacto y económico Chevrolet Aveo LS, perfecto para la ciudad. Bajo consumo de combustible, fácil de estacionar, y costos de mantenimiento reducidos. Excelente opción para primer auto.',
-      en: 'Compact and economical Chevrolet Aveo LS, perfect for the city. Low fuel consumption, easy to park, and reduced maintenance costs. Excellent choice for a first car.'
+      es: 'Compacto y económico Chevrolet Aveo LS 2018, perfecto para la ciudad. Factura de banco, baja de Querétaro, listo para emplacar en cualquier estado. 4 cilindros, bajo consumo de combustible, fácil de estacionar. Cualquier prueba mecánica o legal. Excelente opción para primer auto.',
+      en: 'Compact and economical 2018 Chevrolet Aveo LS, perfect for the city. Bank title, from Querétaro, ready to register in any state. 4 cylinders, low fuel consumption, easy to park. Any mechanical or legal inspection welcome. Excellent choice for a first car.'
     },
     images: [
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/k0lzzgga_IMG_9602.png',
+      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/2kp4mvin_Screenshot%202026-01-31%20000601.png',
+      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/z9x2mw3b_Screenshot%202026-01-31%20000605.png',
+      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/i58qfahf_Screenshot%202026-01-31%20000611.png',
+      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/khra4gm8_Screenshot%202026-01-31%20000617.png',
     ],
   },
 };

@@ -54,7 +54,7 @@ const placeholderVehicles = [
     bodyType: 'Sedán',
     mileage: '4 Cilindros',
     fuel: 'Gasolina',
-    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/k0lzzgga_IMG_9602.png',
+    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/2kp4mvin_Screenshot%202026-01-31%20000601.png',
   },
 ];
 
