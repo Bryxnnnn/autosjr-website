@@ -98,6 +98,12 @@ const Inventory = () => {
 
   return (
     <div data-testid="inventory-page" className="min-h-screen bg-[#050505] pt-24">
+      <SEO 
+        title="Inventario - Autos Seminuevos"
+        description="Explora nuestro inventario de autos seminuevos en Querétaro. Nissan Frontier, Chevrolet Cruze, Volkswagen Golf, y más. Precios competitivos y financiamiento disponible."
+        keywords="autos seminuevos, inventario autos Querétaro, Nissan Frontier, Chevrolet Cruze, Volkswagen Golf, Nissan Rogue, Chevrolet Aveo"
+        url="https://jrautos.com/inventory"
+      />
       {/* Header */}
       <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
