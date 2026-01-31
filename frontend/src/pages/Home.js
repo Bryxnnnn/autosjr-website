@@ -8,21 +8,21 @@ import { Button } from '../components/ui/button';
 const placeholderCars = [
   {
     id: 1,
-    name: 'Sedan Premium',
-    image: 'https://images.unsplash.com/photo-1760713170685-b67abc3be5ad?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwzfHxsdXh1cnklMjBjYXIlMjBkYXJrJTIwc3R1ZGlvJTIwbGlnaHRpbmd8ZW58MHx8fHwxNzY5ODI1MDY3fDA&ixlib=rb-4.1.0&q=85',
-    year: '2023',
+    name: 'Nissan Frontier Pro-4X',
+    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/lmrajlxk_IMG_9598.png',
+    year: '2015',
   },
   {
     id: 2,
-    name: 'SUV Familiar',
-    image: 'https://images.unsplash.com/photo-1759166499946-9ab9e7776d41?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHw0fHxsdXh1cnklMjBjYXIlMjBkYXJrJTIwc3R1ZGlvJTIwbGlnaHRpbmd8ZW58MHx8fHwxNzY5ODI1MDY3fDA&ixlib=rb-4.1.0&q=85',
-    year: '2022',
+    name: 'Chevrolet Cruze LT',
+    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/bbs6jamq_IMG_9599.png',
+    year: '2017',
   },
   {
     id: 3,
-    name: 'Compacto Urbano',
-    image: 'https://images.unsplash.com/photo-1760713164476-7eb5063b3d07?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwyfHxsdXh1cnklMjBjYXIlMjBkYXJrJTIwc3R1ZGlvJTIwbGlnaHRpbmd8ZW58MHx8fHwxNzY5ODI1MDY3fDA&ixlib=rb-4.1.0&q=85',
-    year: '2024',
+    name: 'Volkswagen Golf TSI',
+    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/nsvorm2f_IMG_9600.png',
+    year: '2015',
   },
 ];
 
