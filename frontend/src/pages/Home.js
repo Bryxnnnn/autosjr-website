@@ -9,7 +9,7 @@ const placeholderCars = [
   {
     id: 1,
     name: 'Nissan Frontier Pro-4X',
-    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/lmrajlxk_IMG_9598.png',
+    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/ney20cob_Screenshot%202026-01-30%20230905.png',
     year: '2015',
   },
   {
