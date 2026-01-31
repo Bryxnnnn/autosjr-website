@@ -1,144 +1,95 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Phone, ArrowLeft, Calendar, Fuel, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Button } from '../components/ui/button';
 import SEO from '../components/SEO';
+import axios from 'axios';
 
-// Vehicle data with multiple images
-const vehiclesData = {
-  1: {
-    id: 1,
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Fallback vehicle data (same as before for when API fails)
+const fallbackVehiclesData = {
+  '1': {
+    id: '1',
     name: 'Nissan Frontier Pro-4X',
     year: '2015',
     engine: '6 Cilindros',
     fuel: 'Gasolina',
     transmission: '4x4',
-    description: {
-      es: 'Potente pickup Nissan Frontier Pro-4X con capacidad todoterreno. Factura de Seminuevo, lista para emplacar en cualquier estado. Equipada con motor V6, tracción 4x4, y todas las características para trabajo pesado y aventuras off-road. Cualquier prueba mecánica o legal.',
-      en: 'Powerful Nissan Frontier Pro-4X pickup with off-road capability. Clean title, ready to register in any state. Equipped with V6 engine, 4x4 drive, and all features for heavy work and off-road adventures. Any mechanical or legal inspection welcome.'
-    },
+    description_es: 'Potente pickup Nissan Frontier Pro-4X con capacidad todoterreno. Factura de Seminuevo, lista para emplacar en cualquier estado. Equipada con motor V6, tracción 4x4, y todas las características para trabajo pesado y aventuras off-road. Cualquier prueba mecánica o legal.',
+    description_en: 'Powerful Nissan Frontier Pro-4X pickup with off-road capability. Clean title, ready to register in any state. Equipped with V6 engine, 4x4 drive, and all features for heavy work and off-road adventures. Any mechanical or legal inspection welcome.',
     images: [
+      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/ney20cob_Screenshot%202026-01-30%20230905.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/vibds0pt_Screenshot%202026-01-30%20230905.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/3c69n61d_Screenshot%202026-01-30%20230914.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/54i14ufx_Screenshot%202026-01-30%20230919.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/r0d4wbx8_Screenshot%202026-01-30%20230924.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/7ozqxc62_Screenshot%202026-01-30%20230930.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/o14ysd9m_Screenshot%202026-01-30%20231124.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/usa3i3v6_Screenshot%202026-01-30%20231133.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/dtxjkdmc_Screenshot%202026-01-30%20231142.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/e917devo_Screenshot%202026-01-30%20231149.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/qvciqawj_Screenshot%202026-01-30%20231405.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/hvdbkxms_Screenshot%202026-01-30%20231410.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/1adr2f1z_Screenshot%202026-01-30%20231417.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/h33gp79w_Screenshot%202026-01-30%20231422.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/754cvmeu_Screenshot%202026-01-30%20231428.png',
     ],
   },
-  2: {
-    id: 2,
+  '2': {
+    id: '2',
     name: 'Chevrolet Cruze LT',
     year: '2017',
     engine: '4 Cilindros Turbo',
     fuel: 'Gasolina',
     transmission: 'Automático',
-    description: {
-      es: 'Elegante sedán Chevrolet Cruze LT 2017 con transmisión automática. Factura original, un solo dueño. Motor turbo eficiente, interior espacioso con tecnología moderna. Listo para cualquier prueba mecánica o legal. Perfecto para uso diario y viajes largos.',
-      en: 'Elegant 2017 Chevrolet Cruze LT sedan with automatic transmission. Original title, single owner. Efficient turbo engine, spacious interior with modern technology. Ready for any mechanical or legal inspection. Perfect for daily use and long trips.'
-    },
+    description_es: 'Elegante sedán Chevrolet Cruze LT 2017 con transmisión automática. Factura original, un solo dueño. Motor turbo eficiente, interior espacioso con tecnología moderna. Listo para cualquier prueba mecánica o legal.',
+    description_en: 'Elegant 2017 Chevrolet Cruze LT sedan with automatic transmission. Original title, single owner. Efficient turbo engine, spacious interior with modern technology. Ready for any inspection.',
     images: [
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/gvy2u8ym_Screenshot%202026-01-30%20233715.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/1ogsv9r9_Screenshot%202026-01-30%20233732.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/o5kwujau_Screenshot%202026-01-30%20233739.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/okh2i4zf_Screenshot%202026-01-30%20233745.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/3249wjuc_Screenshot%202026-01-30%20233821.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/qz7qvetr_Screenshot%202026-01-30%20233828.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/czaegr1g_Screenshot%202026-01-30%20233837.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/h516vz1e_Screenshot%202026-01-30%20233843.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/dn4oxvkl_Screenshot%202026-01-30%20233848.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/6mqcwzdk_Screenshot%202026-01-30%20234249.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/0e5gr535_Screenshot%202026-01-30%20234254.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/o7sijkze_Screenshot%202026-01-30%20234303.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/uyjgnrd0_Screenshot%202026-01-30%20234311.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/pwqpczn9_Screenshot%202026-01-30%20234318.png',
     ],
   },
-  3: {
-    id: 3,
+  '3': {
+    id: '3',
     name: 'Volkswagen Golf TSI',
     year: '2015',
     engine: '4 Cilindros Turbo',
     fuel: 'Gasolina',
     transmission: 'Manual',
-    description: {
-      es: 'Icónico Volkswagen Golf TSI 2015 con motor turbo eficiente y deportivo. Factura de Seminuevo, baja de CDMX, listo para emplacar en cualquier estado. 4 cilindros, manejo preciso, interior de alta calidad alemana. Cualquier prueba mecánica o legal.',
-      en: 'Iconic 2015 Volkswagen Golf TSI with efficient and sporty turbo engine. Clean title from CDMX, ready to register in any state. 4 cylinders, precise handling, high-quality German interior. Any mechanical or legal inspection welcome.'
-    },
+    description_es: 'Icónico Volkswagen Golf TSI 2015 con motor turbo eficiente y deportivo. Factura de Seminuevo, baja de CDMX, listo para emplacar en cualquier estado. 4 cilindros, manejo preciso, interior de alta calidad alemana.',
+    description_en: 'Iconic 2015 Volkswagen Golf TSI with efficient and sporty turbo engine. Clean title from CDMX, ready to register in any state. 4 cylinders, precise handling, high-quality German interior.',
     images: [
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/8myndhig_Screenshot%202026-01-30%20234739%20-%20Copy.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/a7kyklcf_Screenshot%202026-01-30%20234745.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/xijd17h5_Screenshot%202026-01-30%20234750.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/ko9ej9mz_Screenshot%202026-01-30%20234755.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/2k3atull_Screenshot%202026-01-30%20234920.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/fhntl5q1_Screenshot%202026-01-30%20234930.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/ac1di55j_Screenshot%202026-01-30%20234934.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/k2wcqevb_Screenshot%202026-01-30%20234940.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/xfqe907k_Screenshot%202026-01-30%20235001.png',
     ],
   },
-  4: {
-    id: 4,
+  '4': {
+    id: '4',
     name: 'Nissan Rogue Advance',
     year: '2016',
     engine: '4 Cilindros',
     fuel: 'Gasolina',
     transmission: 'Automático CVT',
-    description: {
-      es: 'SUV familiar Nissan Rogue Advance 2016 con amplio espacio interior. Factura y pedimento de aduanas, lista para emplacar en cualquier estado. Transmisión CVT suave, 4 cilindros, excelente visibilidad y características de seguridad modernas. Cualquier prueba mecánica o legal.',
-      en: 'Family SUV Nissan Rogue Advance 2016 with ample interior space. Title and customs orders, ready to register in any state. Smooth CVT transmission, 4 cylinders, excellent visibility and modern safety features. Any mechanical or legal inspection welcome.'
-    },
+    description_es: 'SUV familiar Nissan Rogue Advance 2016 con amplio espacio interior. Factura y pedimento de aduanas, lista para emplacar en cualquier estado. Transmisión CVT suave, excelente visibilidad.',
+    description_en: 'Family SUV Nissan Rogue Advance 2016 with ample interior space. Title and customs orders, ready to register in any state. Smooth CVT transmission, excellent visibility.',
     images: [
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/1gpofykx_Screenshot%202026-01-30%20235826.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/8b8ahdqz_Screenshot%202026-01-30%20235832.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/azcbdpv6_Screenshot%202026-01-30%20235838.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/zihjfhcw_Screenshot%202026-01-30%20235844.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/aojwphy9_Screenshot%202026-01-30%20235958.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/3aiwubtz_Screenshot%202026-01-31%20000003.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/g8ntgxiq_Screenshot%202026-01-31%20000008.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/zrpe8f52_Screenshot%202026-01-31%20000013.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/6g1u7fva_Screenshot%202026-01-31%20000020.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/103m0dfp_Screenshot%202026-01-31%20000138.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/1y1ac6t5_Screenshot%202026-01-31%20000144.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/asdxxbga_Screenshot%202026-01-31%20000149.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/ph250gi6_Screenshot%202026-01-31%20000155.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/nhckqd07_Screenshot%202026-01-31%20000201.png',
     ],
   },
-  5: {
-    id: 5,
+  '5': {
+    id: '5',
     name: 'Chevrolet Aveo LS',
     year: '2018',
     engine: '4 Cilindros',
     fuel: 'Gasolina',
     transmission: 'Manual',
-    description: {
-      es: 'Compacto y económico Chevrolet Aveo LS 2018, perfecto para la ciudad. Factura de banco, baja de Querétaro, listo para emplacar en cualquier estado. 4 cilindros, bajo consumo de combustible, fácil de estacionar. Cualquier prueba mecánica o legal. Excelente opción para primer auto.',
-      en: 'Compact and economical 2018 Chevrolet Aveo LS, perfect for the city. Bank title, from Querétaro, ready to register in any state. 4 cylinders, low fuel consumption, easy to park. Any mechanical or legal inspection welcome. Excellent choice for a first car.'
-    },
+    description_es: 'Compacto y económico Chevrolet Aveo LS 2018, perfecto para la ciudad. Factura de banco, baja de Querétaro, listo para emplacar en cualquier estado. 4 cilindros, bajo consumo de combustible.',
+    description_en: 'Compact and economical 2018 Chevrolet Aveo LS, perfect for the city. Bank title, from Querétaro, ready to register in any state. 4 cylinders, low fuel consumption.',
     images: [
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/2kp4mvin_Screenshot%202026-01-31%20000601.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/z9x2mw3b_Screenshot%202026-01-31%20000605.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/i58qfahf_Screenshot%202026-01-31%20000611.png',
       'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/khra4gm8_Screenshot%202026-01-31%20000617.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/679olry6_Screenshot%202026-01-31%20000738.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/rr2tghlb_Screenshot%202026-01-31%20000744.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/toi5viil_Screenshot%202026-01-31%20000750.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/g1gbtjyo_Screenshot%202026-01-31%20000755.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/gdd8rnfw_Screenshot%202026-01-31%20000802.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/9fg56jhf_Screenshot%202026-01-31%20000910.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/ts6bohd8_Screenshot%202026-01-31%20000914.png',
-      'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/azf2vchc_Screenshot%202026-01-31%20000919.png',
     ],
   },
 };
@@ -146,9 +97,38 @@ const vehiclesData = {
 const VehicleDetail = () => {
   const { id } = useParams();
   const { language, t } = useLanguage();
+  const [vehicle, setVehicle] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
-  const vehicle = vehiclesData[id];
+
+  useEffect(() => {
+    fetchVehicle();
+  }, [id]);
+
+  const fetchVehicle = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/vehicles/${id}`);
+      setVehicle(response.data);
+    } catch (err) {
+      console.error('Error fetching vehicle:', err);
+      // Use fallback data
+      const fallback = fallbackVehiclesData[id];
+      if (fallback) {
+        setVehicle(fallback);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#050505] pt-24 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
   
   if (!vehicle) {
     return (
@@ -180,11 +160,15 @@ const VehicleDetail = () => {
     );
   };
 
+  const description = vehicle.description_es && vehicle.description_en 
+    ? (language === 'es' ? vehicle.description_es : vehicle.description_en)
+    : (vehicle.description?.[language] || vehicle.description_es || '');
+
   return (
     <div data-testid="vehicle-detail-page" className="min-h-screen bg-[#050505] pt-24">
       <SEO 
         title={`${vehicle.name} ${vehicle.year}`}
-        description={`${vehicle.name} ${vehicle.year} en venta en J.R Autos Querétaro. ${vehicle.engine}, ${vehicle.transmission}. ${vehicle.description[language].substring(0, 150)}...`}
+        description={`${vehicle.name} ${vehicle.year} en venta en J.R Autos Querétaro. ${vehicle.engine}, ${vehicle.transmission}. ${description.substring(0, 150)}...`}
         keywords={`${vehicle.name}, ${vehicle.year}, autos seminuevos Querétaro, ${vehicle.engine}`}
         image={vehicle.images[0]}
         url={`https://jrautos.com/vehicle/${vehicle.id}`}
@@ -319,7 +303,7 @@ const VehicleDetail = () => {
                 {language === 'es' ? 'Descripción' : 'Description'}
               </h2>
               <p className="text-gray-400 leading-relaxed">
-                {vehicle.description[language]}
+                {description}
               </p>
             </div>
 
