@@ -34,7 +34,7 @@ const placeholderVehicles = [
     bodyType: 'Hatchback',
     mileage: '4 Cilindros',
     fuel: 'Gasolina',
-    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/nsvorm2f_IMG_9600.png',
+    image: 'https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/8myndhig_Screenshot%202026-01-30%20234739%20-%20Copy.png',
   },
   {
     id: 4,
