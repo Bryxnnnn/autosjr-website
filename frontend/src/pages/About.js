@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Star, Users, Car, Award, Phone } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Button } from '../components/ui/button';
+import SEO from '../components/SEO';
 
 const About = () => {
   const { t, language } = useLanguage();
