@@ -90,7 +90,7 @@ const Home = () => {
                 </Button>
               </Link>
               <a 
-                href="https://maps.google.com/?q=La+Mora,+Centro,+76850,+Querétaro,+Mexico"
+                href="https://www.google.com/maps/place/J.R+Autos/@20.1920276,-100.1371684,14z/data=!4m6!3m5!1s0x85d31bcdeceee893:0xdfdcca84b6710f7f!8m2!3d20.1932132!4d-100.1456972!16s%2Fg%2F11yvgfm7cm"
                 target="_blank"
                 rel="noopener noreferrer"
               >
