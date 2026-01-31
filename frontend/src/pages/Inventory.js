@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, Fuel, Settings } from 'lucide-react';
+import { Calendar, Fuel, Settings, Phone } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Button } from '../components/ui/button';
 
