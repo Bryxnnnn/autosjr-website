@@ -60,7 +60,11 @@ const placeholderVehicles = [
 
 // Get unique values for filters
 const brands = [...new Set(placeholderVehicles.map(v => v.brand))].sort();
+// Add more common brands for future inventory
+const allBrands = [...new Set([...brands, 'Audi', 'BMW', 'Ford', 'Honda', 'Hyundai', 'Kia', 'Mazda', 'Mercedes-Benz', 'Toyota'])].sort();
 const bodyTypes = [...new Set(placeholderVehicles.map(v => v.bodyType))].sort();
+// Add more body types for future inventory
+const allBodyTypes = [...new Set([...bodyTypes, 'Convertible', 'Coupé', 'Crossover', 'Minivan', 'Off-Road', 'Roadster'])].sort();
 
 const Inventory = () => {
   const { t, language } = useLanguage();
