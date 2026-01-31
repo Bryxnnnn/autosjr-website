@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
+import hashlib
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -22,7 +23,10 @@ db = client[os.environ['DB_NAME']]
 # Resend configuration
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
-RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL', 'jr.autos.queretaro@example.com')
+RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL', 'alan.can85@gmail.com')
+
+# Admin password (hashed)
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'jrautos2024')
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -65,19 +69,83 @@ class ContactMessageCreate(BaseModel):
     phone: Optional[str] = None
     message: str
 
+# Vehicle Models
+class VehicleImage(BaseModel):
+    url: str
+    order: int = 0
+
 class Vehicle(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     year: str
-    mileage: str
+    brand: str
+    bodyType: str
+    engine: str
     fuel: str
-    price: Optional[str] = None
-    image: str
-    description: Optional[str] = None
+    transmission: str
+    description_es: str
+    description_en: str
+    images: List[str] = []
+    cover_image: str = ""
     available: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class VehicleCreate(BaseModel):
+    name: str
+    year: str
+    brand: str
+    bodyType: str
+    engine: str
+    fuel: str
+    transmission: str
+    description_es: str
+    description_en: str
+    images: List[str] = []
+    cover_image: str = ""
+
+class VehicleUpdate(BaseModel):
+    name: Optional[str] = None
+    year: Optional[str] = None
+    brand: Optional[str] = None
+    bodyType: Optional[str] = None
+    engine: Optional[str] = None
+    fuel: Optional[str] = None
+    transmission: Optional[str] = None
+    description_es: Optional[str] = None
+    description_en: Optional[str] = None
+    images: Optional[List[str]] = None
+    cover_image: Optional[str] = None
+    available: Optional[bool] = None
+
+class AdminLogin(BaseModel):
+    password: str
+
+class AdminToken(BaseModel):
+    token: str
+    message: str
+
+
+# Admin authentication
+def verify_admin_token(authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="No authorization header")
+    
+    try:
+        scheme, token = authorization.split()
+        if scheme.lower() != "bearer":
+            raise HTTPException(status_code=401, detail="Invalid authentication scheme")
+        
+        # Simple token verification - token is hash of password
+        expected_token = hashlib.sha256(ADMIN_PASSWORD.encode()).hexdigest()
+        if token != expected_token:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        return True
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
 
 
 # Routes
@@ -185,17 +253,126 @@ async def get_contact_messages():
     return messages
 
 
-# Vehicle API (for future inventory management)
+# ==================== PUBLIC VEHICLE API ====================
+
 @api_router.get("/vehicles", response_model=List[Vehicle])
 async def get_vehicles():
-    """Get all available vehicles"""
-    vehicles = await db.vehicles.find({"available": True}, {"_id": 0}).to_list(100)
+    """Get all available vehicles (public)"""
+    vehicles = await db.vehicles.find({"available": True}, {"_id": 0}).sort("created_at", -1).to_list(100)
     
     for vehicle in vehicles:
         if isinstance(vehicle.get('created_at'), str):
             vehicle['created_at'] = datetime.fromisoformat(vehicle['created_at'])
+        if isinstance(vehicle.get('updated_at'), str):
+            vehicle['updated_at'] = datetime.fromisoformat(vehicle['updated_at'])
     
     return vehicles
+
+@api_router.get("/vehicles/{vehicle_id}", response_model=Vehicle)
+async def get_vehicle(vehicle_id: str):
+    """Get a single vehicle by ID (public)"""
+    vehicle = await db.vehicles.find_one({"id": vehicle_id, "available": True}, {"_id": 0})
+    
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    if isinstance(vehicle.get('created_at'), str):
+        vehicle['created_at'] = datetime.fromisoformat(vehicle['created_at'])
+    if isinstance(vehicle.get('updated_at'), str):
+        vehicle['updated_at'] = datetime.fromisoformat(vehicle['updated_at'])
+    
+    return vehicle
+
+
+# ==================== ADMIN API ====================
+
+@api_router.post("/admin/login", response_model=AdminToken)
+async def admin_login(login: AdminLogin):
+    """Admin login - returns token if password matches"""
+    if login.password == ADMIN_PASSWORD:
+        token = hashlib.sha256(ADMIN_PASSWORD.encode()).hexdigest()
+        return AdminToken(token=token, message="Login successful")
+    else:
+        raise HTTPException(status_code=401, detail="Invalid password")
+
+@api_router.get("/admin/vehicles", response_model=List[Vehicle])
+async def admin_get_vehicles(authorized: bool = Depends(verify_admin_token)):
+    """Get all vehicles including unavailable (admin only)"""
+    vehicles = await db.vehicles.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    
+    for vehicle in vehicles:
+        if isinstance(vehicle.get('created_at'), str):
+            vehicle['created_at'] = datetime.fromisoformat(vehicle['created_at'])
+        if isinstance(vehicle.get('updated_at'), str):
+            vehicle['updated_at'] = datetime.fromisoformat(vehicle['updated_at'])
+    
+    return vehicles
+
+@api_router.post("/admin/vehicles", response_model=Vehicle)
+async def admin_create_vehicle(vehicle_input: VehicleCreate, authorized: bool = Depends(verify_admin_token)):
+    """Create a new vehicle (admin only)"""
+    vehicle_dict = vehicle_input.model_dump()
+    vehicle_obj = Vehicle(**vehicle_dict)
+    
+    # Set cover image to first image if not specified
+    if not vehicle_obj.cover_image and vehicle_obj.images:
+        vehicle_obj.cover_image = vehicle_obj.images[0]
+    
+    doc = vehicle_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['updated_at'] = doc['updated_at'].isoformat()
+    
+    await db.vehicles.insert_one(doc)
+    logger.info(f"Vehicle created: {vehicle_obj.name} (ID: {vehicle_obj.id})")
+    
+    return vehicle_obj
+
+@api_router.put("/admin/vehicles/{vehicle_id}", response_model=Vehicle)
+async def admin_update_vehicle(vehicle_id: str, vehicle_update: VehicleUpdate, authorized: bool = Depends(verify_admin_token)):
+    """Update a vehicle (admin only)"""
+    # Get existing vehicle
+    existing = await db.vehicles.find_one({"id": vehicle_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    # Update only provided fields
+    update_data = {k: v for k, v in vehicle_update.model_dump().items() if v is not None}
+    update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    await db.vehicles.update_one({"id": vehicle_id}, {"$set": update_data})
+    
+    # Return updated vehicle
+    updated = await db.vehicles.find_one({"id": vehicle_id}, {"_id": 0})
+    
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if isinstance(updated.get('updated_at'), str):
+        updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
+    
+    logger.info(f"Vehicle updated: {updated['name']} (ID: {vehicle_id})")
+    return updated
+
+@api_router.delete("/admin/vehicles/{vehicle_id}")
+async def admin_delete_vehicle(vehicle_id: str, authorized: bool = Depends(verify_admin_token)):
+    """Delete a vehicle (admin only)"""
+    result = await db.vehicles.delete_one({"id": vehicle_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    logger.info(f"Vehicle deleted: {vehicle_id}")
+    return {"message": "Vehicle deleted successfully"}
+
+@api_router.get("/admin/contacts", response_model=List[ContactMessage])
+async def admin_get_contacts(authorized: bool = Depends(verify_admin_token)):
+    """Get all contact messages (admin only)"""
+    messages = await db.contact_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    
+    for msg in messages:
+        if isinstance(msg.get('created_at'), str):
+            msg['created_at'] = datetime.fromisoformat(msg['created_at'])
+    
+    return messages
 
 
 # Include the router in the main app
