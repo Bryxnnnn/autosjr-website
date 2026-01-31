@@ -53,6 +53,12 @@ const Services = () => {
 
   return (
     <div data-testid="services-page" className="min-h-screen bg-[#050505] pt-24">
+      <SEO 
+        title="Servicios - Arrendamiento y Venta de Autos"
+        description="Servicios de J.R Autos: Arrendamiento de autos, venta de vehículos seminuevos, corretaje automotriz y asistencia financiera en Querétaro."
+        keywords="arrendamiento autos Querétaro, venta autos seminuevos, financiamiento autos, corretaje automotriz"
+        url="https://jrautos.com/services"
+      />
       {/* Header */}
       <section className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
