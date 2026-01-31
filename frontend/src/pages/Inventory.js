@@ -114,7 +114,7 @@ const Inventory = () => {
                       <span>{vehicle.year}</span>
                     </div>
                     <div className="flex items-center space-x-2 text-gray-400 text-sm">
-                      <Gauge className="w-4 h-4" />
+                      <Settings className="w-4 h-4" />
                       <span>{vehicle.mileage}</span>
                     </div>
                     <div className="flex items-center space-x-2 text-gray-400 text-sm">
@@ -124,15 +124,14 @@ const Inventory = () => {
                   </div>
 
                   {/* Action */}
-                  <a href="tel:+524481085706" className="block">
+                  <Link to={`/vehicle/${vehicle.id}`} className="block">
                     <Button 
-                      data-testid={`contact-vehicle-${vehicle.id}`}
+                      data-testid={`view-vehicle-${vehicle.id}`}
                       className="w-full rounded-full bg-white text-black hover:bg-gray-200 font-semibold"
                     >
-                      <Phone className="w-4 h-4 mr-2" />
-                      {t('callNow')}
+                      {t('viewDetails')}
                     </Button>
-                  </a>
+                  </Link>
                 </div>
               </motion.div>
             ))}
