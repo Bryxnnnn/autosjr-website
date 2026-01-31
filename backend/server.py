@@ -115,6 +115,8 @@ async def get_status_checks():
 @api_router.post("/contact", response_model=ContactMessage)
 async def submit_contact(input: ContactMessageCreate):
     """Submit a contact form message"""
+    logger.info(f"Received contact form submission from: {input.name} ({input.email})")
+    
     contact_dict = input.model_dump()
     contact_obj = ContactMessage(**contact_dict)
     
@@ -122,7 +124,12 @@ async def submit_contact(input: ContactMessageCreate):
     doc['created_at'] = doc['created_at'].isoformat()
     
     # Store in database
-    _ = await db.contact_messages.insert_one(doc)
+    try:
+        result = await db.contact_messages.insert_one(doc)
+        logger.info(f"Contact message saved to database - ID: {contact_obj.id}, MongoDB ID: {result.inserted_id}")
+    except Exception as e:
+        logger.error(f"Failed to save contact message to database: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to save message to database")
     
     # Try to send email if Resend is configured
     if RESEND_API_KEY:
