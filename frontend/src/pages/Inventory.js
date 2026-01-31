@@ -140,7 +140,7 @@ const Inventory = () => {
                   >
                     {language === 'es' ? 'Todas las marcas' : 'All brands'}
                   </button>
-                  {brands.map(brand => (
+                  {allBrands.map(brand => (
                     <button
                       key={brand}
                       onClick={() => {
@@ -189,7 +189,7 @@ const Inventory = () => {
                   >
                     {language === 'es' ? 'Todos los tipos' : 'All types'}
                   </button>
-                  {bodyTypes.map(type => (
+                  {allBodyTypes.map(type => (
                     <button
                       key={type}
                       onClick={() => {
