@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Phone, ArrowLeft, Calendar, Fuel, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { Button } from '../components/ui/button';
+import SEO from '../components/SEO';
 
 // Vehicle data with multiple images
 const vehiclesData = {
