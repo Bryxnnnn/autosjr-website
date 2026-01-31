@@ -46,7 +46,7 @@ const Navbar = () => {
             <img 
               src="https://customer-assets.emergentagent.com/job_carmex-queretary/artifacts/qi322g9c_Screenshot%202026-01-30%20192319.png" 
               alt="JR Autos"
-              className="h-12 md:h-14 w-auto"
+              className="h-10 md:h-12 w-auto object-contain"
             />
           </Link>
 
