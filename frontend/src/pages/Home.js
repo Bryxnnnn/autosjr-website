@@ -39,6 +39,12 @@ const Home = () => {
 
   return (
     <div data-testid="home-page" className="min-h-screen">
+      <SEO 
+        title="Inicio"
+        description="J.R Autos - Tu auto broker de confianza en Querétaro, México. Venta y arrendamiento de autos seminuevos de calidad. ⭐ 5.0 Google Rating. Nissan, Chevrolet, Volkswagen y más."
+        keywords="autos seminuevos Querétaro, auto broker Querétaro, venta de autos, JR Autos, carros usados"
+        url="https://jrautos.com/"
+      />
       {/* Hero Section */}
       <section 
         data-testid="hero-section"
